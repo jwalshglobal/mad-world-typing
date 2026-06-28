@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A thrilling retro-arcade space shooter typing tutor that teaches keyboard basics and layout. Stop the Mad Scientist and master typing!">
+  <title>Mad World Typing - Save the Earth!</title>
+  <!-- Google Fonts for retro arcade and modern UI aesthetics -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <div class="app-wrapper">
+    <!-- Starfield background (handled via CSS animation) -->
+    <div class="stars-background"></div>
+    <div class="stars-background-close"></div>
+
+    <!-- MAIN HEADER -->
+    <header class="app-header">
+      <div class="header-logo">
+        <h1 class="logo-text">MAD WORLD <span class="accent-text">TYPING</span></h1>
+        <p class="tagline">DEFENDER FORCE ACADEMY</p>
+      </div>
+
+      <div class="level-info-badge">
+        <div class="badge-label">CURRENT SECTOR</div>
+        <div id="activeStageName" class="badge-value">Sector 1: Stage 1.1</div>
+        <div id="activeStageKeys" class="badge-keys">Keys: F & J</div>
+      </div>
+
+      <div class="control-actions">
+        <button id="btnToggleAudio" class="icon-button" aria-label="Toggle Audio">
+          <svg class="audio-on" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.03,19.86 21,16.28 21,12C21,7.72 18.03,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/>
+          </svg>
+          <svg class="audio-off hidden" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M12,4L9.91,6.09L12,8.18V4M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.44 14,18.7V20.76C15.38,20.44 16.63,19.78 17.68,18.95L20,21.27L21.27,20L4.27,3M19,12C19,12.78 18.88,13.5 18.66,14.21L20.2,15.75C20.7,14.6 21,13.34 21,12C21,7.72 18.03,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,11 16.14,10.1 15.58,9.4L16.83,8.15C17.74,9.2 18.25,10.5 18.25,12C18.25,13.78 17.25,15.3 15.75,16L14,14.25C14.8,13.9 16.5,13.2 16.5,12M14,7.97L12.5,9.47V7.97M12,5.83V9.83L10,7.83L12,5.83Z"/>
+          </svg>
+        </button>
+        <button id="btnOpenSidebar" class="header-button">SECTORS</button>
+      </div>
+    </header>
+
+    <!-- METRICS PANEL -->
+    <section class="dashboard-panel" aria-label="Game Metrics Dashboard">
+      <div class="metric-card">
+        <div class="metric-label">WORDS / MIN</div>
+        <div id="wpmCounter" class="metric-value">0</div>
+      </div>
+      
+      <div class="metric-card">
+        <div class="metric-label">ACCURACY</div>
+        <div class="metric-value"><span id="accuracyCounter">100</span><span class="pct">%</span></div>
+      </div>
+
+      <div class="metric-card combo-card">
+        <div class="metric-label">STREAK MULTIPLIER</div>
+        <div class="metric-value x-multiplier">x<span id="comboMultiplier">1</span></div>
+        <div class="combo-progress-bar">
+          <div id="comboFill" class="combo-progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">SCORE</div>
+        <div id="scoreCounter" class="metric-value">000,000</div>
+      </div>
+
+      <div class="metric-card shield-card">
+        <div class="metric-label">DEFENSIVE SHIELD</div>
+        <div class="shield-meter-wrapper">
+          <div class="shield-bar">
+            <div id="shieldFill" class="shield-fill" style="width: 100%;"></div>
+          </div>
+          <span id="shieldPercent" class="shield-text">100%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPACE BATTLEFIELD SCREEN -->
+    <main class="game-arena-wrapper">
+      <canvas id="gameCanvas" width="900" height="420"></canvas>
+      
+      <!-- Tutorial HUD elements drawn inside the canvas/DOM overlays -->
+      <div id="keyboardPromptOverlay" class="keyboard-prompt-overlay hidden">
+        <div id="keyboardPromptText">Press Space to Start Stage</div>
+      </div>
+
+      <!-- Boss Warning Banner -->
+      <div id="bossWarningBanner" class="boss-warning hidden">
+        <div class="warning-glitch" data-text="BOSS WARNING">BOSS WARNING</div>
+        <div class="warning-sub">DR. ZERO'S DOOMSDAY MINION SPOTTED</div>
+      </div>
+    </main>
+
+    <!-- KEYBOARD GUIDE (BOTTOM) -->
+    <footer class="keyboard-guide-section">
+      <div class="guide-header">
+        <span>KEYBOARD GUIDE</span>
+        <div class="finger-legend">
+          <span class="legend-dot finger-pinky" data-tooltip="Pinky Fingers"></span>
+          <span class="legend-dot finger-ring" data-tooltip="Ring Fingers"></span>
+          <span class="legend-dot finger-middle" data-tooltip="Middle Fingers"></span>
+          <span class="legend-dot finger-index" data-tooltip="Index Fingers"></span>
+          <span class="legend-dot finger-thumb" data-tooltip="Thumbs (Space)"></span>
+        </div>
+      </div>
+
+      <div class="keyboard" id="virtualKeyboard">
+        <!-- Row 1: Numbers & Specials -->
+        <div class="keyboard-row">
+          <div class="key finger-pinky" id="key-Backquote">`</div>
+          <div class="key finger-pinky" id="key-Digit1">1</div>
+          <div class="key finger-ring" id="key-Digit2">2</div>
+          <div class="key finger-middle" id="key-Digit3">3</div>
+          <div class="key finger-index" id="key-Digit4">4</div>
+          <div class="key finger-index" id="key-Digit5">5</div>
+          <div class="key finger-index" id="key-Digit6">6</div>
+          <div class="key finger-index" id="key-Digit7">7</div>
+          <div class="key finger-middle" id="key-Digit8">8</div>
+          <div class="key finger-ring" id="key-Digit9">9</div>
+          <div class="key finger-pinky" id="key-Digit0">0</div>
+          <div class="key finger-pinky" id="key-Minus">-</div>
+          <div class="key finger-pinky" id="key-Equal">=</div>
+          <div class="key key-wide finger-pinky" id="key-Backspace">Backspace</div>
+        </div>
+        
+        <!-- Row 2: Tab & QWERTY -->
+        <div class="keyboard-row">
+          <div class="key key-tab finger-pinky" id="key-Tab">Tab</div>
+          <div class="key finger-pinky" id="key-KeyQ">Q</div>
+          <div class="key finger-ring" id="key-KeyW">W</div>
+          <div class="key finger-middle" id="key-KeyE">E</div>
+          <div class="key finger-index" id="key-KeyR">R</div>
+          <div class="key finger-index" id="key-KeyT">T</div>
+          <div class="key finger-index" id="key-KeyY">Y</div>
+          <div class="key finger-index" id="key-KeyU">U</div>
+          <div class="key finger-middle" id="key-KeyI">I</div>
+          <div class="key finger-ring" id="key-KeyO">O</div>
+          <div class="key finger-pinky" id="key-KeyP">P</div>
+          <div class="key finger-pinky" id="key-BracketLeft">[</div>
+          <div class="key finger-pinky" id="key-BracketRight">]</div>
+          <div class="key finger-pinky" id="key-Backslash">\</div>
+        </div>
+
+        <!-- Row 3: Caps & Home Row -->
+        <div class="keyboard-row">
+          <div class="key key-caps finger-pinky" id="key-CapsLock">Caps</div>
+          <div class="key finger-pinky home-key" id="key-KeyA">A</div>
+          <div class="key finger-ring home-key" id="key-KeyS">S</div>
+          <div class="key finger-middle home-key" id="key-KeyD">D</div>
+          <div class="key finger-index home-key tactile-key" id="key-KeyF">F</div>
+          <div class="key finger-index" id="key-KeyG">G</div>
+          <div class="key finger-index" id="key-KeyH">H</div>
+          <div class="key finger-index home-key tactile-key" id="key-KeyJ">J</div>
+          <div class="key finger-middle home-key" id="key-KeyK">K</div>
+          <div class="key finger-ring home-key" id="key-KeyL">L</div>
+          <div class="key finger-pinky home-key" id="key-Semicolon">;</div>
+          <div class="key finger-pinky" id="key-Quote">'</div>
+          <div class="key key-enter finger-pinky" id="key-Enter">Enter</div>
+        </div>
+
+        <!-- Row 4: Shift & Bottom Row -->
+        <div class="keyboard-row">
+          <div class="key key-left-shift finger-pinky" id="key-ShiftLeft">Shift</div>
+          <div class="key finger-pinky" id="key-KeyZ">Z</div>
+          <div class="key finger-ring" id="key-KeyX">X</div>
+          <div class="key finger-middle" id="key-KeyC">C</div>
+          <div class="key finger-index" id="key-KeyV">V</div>
+          <div class="key finger-index" id="key-KeyB">B</div>
+          <div class="key finger-index" id="key-KeyN">N</div>
+          <div class="key finger-index" id="key-KeyM">M</div>
+          <div class="key finger-middle" id="key-Comma">,</div>
+          <div class="key finger-ring" id="key-Period">.</div>
+          <div class="key finger-pinky" id="key-Slash">/</div>
+          <div class="key key-right-shift finger-pinky" id="key-ShiftRight">Shift</div>
+        </div>
+
+        <!-- Row 5: Spacebar & Modifiers -->
+        <div class="keyboard-row">
+          <div class="key key-ctrl finger-pinky" id="key-ControlLeft">Ctrl</div>
+          <div class="key finger-pinky" id="key-MetaLeft">Win</div>
+          <div class="key finger-ring" id="key-AltLeft">Alt</div>
+          <div class="key key-space finger-thumb" id="key-Space">Space</div>
+          <div class="key finger-ring" id="key-AltRight">Alt</div>
+          <div class="key finger-pinky" id="key-ControlRight">Ctrl</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- LEVEL SELECTOR SIDEBAR -->
+  <aside id="sidebarSectors" class="sidebar-container hidden">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <h2>MISSION SECTORS</h2>
+        <button id="btnCloseSidebar" class="close-button">&times;</button>
+      </div>
+      
+      <div class="sectors-list" id="sectorsList">
+        <!-- Injected via JavaScript dynamically -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- MODAL: WELCOME SCREEN -->
+  <div id="modalWelcome" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-glitch-header">
+        <h2 class="title-glow text-glitch" data-text="INTERCEPT TRANSMISSION">INTERCEPT TRANSMISSION</h2>
+      </div>
+      
+      <div class="modal-body text-story">
+        <p class="story-alert">> ALARM: EMERGENCY PROTOCOL ACTIVATED</p>
+        <p>The rogue cyber-terrorist <strong>Dr. Zero</strong> has deployed a global code-armada targeting our core defense satellites. Standard firewall algorithms have crumbled. Our only hope is the <strong>Laser Interceptor Prototype</strong>.</p>
+        <p>As our cadet, you must type the vulnerability keycodes visible on Dr. Zero's incoming drones. Accuracy and speed are your shields. Each correct stroke fires a lock-on plasma bolt, vaporizing the invaders.</p>
+        <p>Unlock Sectors, master finger placements, and save the grid!</p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnStartGame" class="btn-primary-neon">INITIALIZE LASER CANNON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: STAGE CLEARED / VICTORY -->
+  <div id="modalStageClear" class="modal-overlay hidden">
+    <div class="modal-card modal-success">
+      <div class="modal-glitch-header">
+        <h2 class="title-glow">SECTOR CLEAR</h2>
+      </div>
+
+      <div class="modal-body stats-grid">
+        <div class="rating-stars-container">
+          <span class="star-icon star-empty" id="clearStar1">&#9733;</span>
+          <span class="star-icon star-empty" id="clearStar2">&#9733;</span>
+          <span class="star-icon star-empty" id="clearStar3">&#9733;</span>
+        </div>
+        
+        <p id="stageClearTitle" class="victory-message">Sector 1 cleared successfully!</p>
+
+        <div class="clear-stats-table">
+          <div class="stat-row">
+            <span class="stat-label">Words Per Minute:</span>
+            <span id="clearWpm" class="stat-val highlight-cyan">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Accuracy:</span>
+            <span id="clearAccuracy" class="stat-val highlight-magenta">100%</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Mission Score:</span>
+            <span id="clearScore" class="stat-val highlight-purple">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnNextStage" class="btn-primary-neon">NEXT MISSION</button>
+        <button id="btnReplayStage" class="btn-secondary-neon">REPLAY</button>
+        <button id="btnReturnMenu" class="btn-secondary-neon">SECTOR LIST</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GAME OVER / SHIELD DEFEAT -->
+  <div id="modalGameOver" class="modal-overlay hidden">
+    <div class="modal-card modal-fail">
+      <div class="modal-glitch-header">
+        <h2 class="title-glow text-glitch" data-text="SHIELD BREACHED">SHIELD BREACHED</h2>
+      </div>
+
+      <div class="modal-body text-story text-center">
+        <p class="story-alert">> SHIELD INTEGRITY: 0% - INTRUSION DETECTED</p>
+        <p>Dr. Zero's code-drones breached our orbital barrier. The mainframe has been compromised. We must recalibrate and intercept the wave again!</p>
+        
+        <div class="clear-stats-table">
+          <div class="stat-row">
+            <span class="stat-label">Stage Attempted:</span>
+            <span id="failStageName" class="stat-val">Stage 1.1</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Peak Speed:</span>
+            <span id="failWpm" class="stat-val highlight-cyan">0 WPM</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Total Score:</span>
+            <span id="failScore" class="stat-val highlight-purple">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnRetryStage" class="btn-primary-neon">REPAIR & TRY AGAIN</button>
+        <button id="btnReturnMenuFromFail" class="btn-secondary-neon">SECTOR LIST</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

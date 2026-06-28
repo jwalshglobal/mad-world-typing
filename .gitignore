@@ -1,3 +1,47 @@
+# === Docker / Containerization ===
+# Ignore local environment override files (if you add them later)
+.env
+.env.local
+.env.*.local
+
+# Ignore Docker desktop metadata / local state
+.docker/
+.containers/
+
+
+# === System & IDE files ===
+# MacOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows specific files
+Thumbs.db
+Ehthumbs.db
+desktop.ini
+
+# IDEs and Editors (VS Code, JetBrains, Google Antigravity local state)
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+
+# === Build / Log Outputs ===
+# Node/NPM logs (if you add build tools later)
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production build outputs (if you switch to a framework like React/Vue later)
+dist/
+build/
+
 .DS_Store
 thumbs.db
 node_modules/
