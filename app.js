@@ -704,7 +704,7 @@ class DroneEnemy {
     }
 
     // DRAW TEXT INSIDE DRONE
-    ctx.font = this.isBoss ? "bold 20px 'Orbitron', sans-serif" : "bold 22px 'Orbitron', sans-serif";
+    ctx.font = this.isBoss ? "800 22px 'Outfit', sans-serif" : "800 24px 'Outfit', sans-serif";
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
