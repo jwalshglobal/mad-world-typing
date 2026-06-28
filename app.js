@@ -704,7 +704,7 @@ class DroneEnemy {
     }
 
     // DRAW TEXT INSIDE DRONE
-    ctx.font = this.isBoss ? "900 13px 'Orbitron', sans-serif" : "bold 16px 'Orbitron', sans-serif";
+    ctx.font = this.isBoss ? "bold 20px 'Orbitron', sans-serif" : "bold 22px 'Orbitron', sans-serif";
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -715,15 +715,30 @@ class DroneEnemy {
     const typedText = this.text.substring(0, this.typedIndex);
     const untypedText = this.text.substring(this.typedIndex);
 
-    // Draw text with highlighting
+    // Render a high-contrast black outline first to ensure high legibility against the starfield
+    ctx.save();
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 5;
+    ctx.lineJoin = 'round';
+    
     if (this.typedIndex === 0) {
+      ctx.strokeText(this.text, this.x, textY);
+      ctx.restore();
+      
       // None typed yet, standard clean rendering
       ctx.fillStyle = '#ffffff';
       ctx.fillText(this.text, this.x, textY);
     } else {
-      // Split rendering offset calculation
       const typedWidth = ctx.measureText(typedText).width;
       const startX = this.x - textWidth / 2;
+
+      ctx.textAlign = 'left';
+      ctx.strokeText(typedText, startX, textY);
+      ctx.strokeText(untypedText, startX + typedWidth, textY);
+      ctx.restore();
+
+      // Split rendering offset calculation
+      const startXFill = this.x - textWidth / 2;
 
       // Draw typed characters (neon green glow)
       ctx.save();
@@ -731,13 +746,15 @@ class DroneEnemy {
       ctx.shadowColor = '#39ff14';
       ctx.shadowBlur = 6;
       ctx.textAlign = 'left';
-      ctx.fillText(typedText, startX, textY);
+      ctx.fillText(typedText, startXFill, textY);
       ctx.restore();
 
       // Draw untyped characters (plain white)
+      ctx.save();
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'left';
-      ctx.fillText(untypedText, startX + typedWidth, textY);
+      ctx.fillText(untypedText, startXFill + typedWidth, textY);
+      ctx.restore();
     }
 
     // Highlight cursor underline on the next target character
@@ -748,10 +765,10 @@ class DroneEnemy {
       const startX = this.x - textWidth / 2;
 
       ctx.strokeStyle = '#fffb00';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(startX + typedWidth, this.y + 8);
-      ctx.lineTo(startX + typedWidth + charWidth, this.y + 8);
+      ctx.moveTo(startX + typedWidth, this.y + 11);
+      ctx.lineTo(startX + typedWidth + charWidth, this.y + 11);
       ctx.stroke();
     }
 

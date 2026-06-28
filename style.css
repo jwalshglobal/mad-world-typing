@@ -572,24 +572,26 @@ body {
   padding: 6px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.02);
+  width: 724px;
+  margin: 0 auto;
 }
 
 .keyboard-row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
 }
 
 .key {
-  height: 32px;
-  min-width: 32px;
+  width: 44px;
+  height: 38px;
   background: rgba(18, 20, 38, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-gray);
   transition: all 0.15s ease;
@@ -642,37 +644,35 @@ body {
 
 /* Special sized keys */
 .key-wide {
-  flex-grow: 1.5;
-  min-width: 50px;
+  width: 88px;
 }
 
-.key-tab {
-  min-width: 45px;
+.key-tab, #key-Backslash {
+  width: 66px;
 }
 
 .key-caps {
-  min-width: 50px;
+  width: 77px;
 }
 
 .key-enter {
-  flex-grow: 1.5;
-  min-width: 55px;
+  width: 103px;
 }
 
 .key-left-shift {
-  min-width: 65px;
+  width: 99px;
 }
 
 .key-right-shift {
-  min-width: 65px;
+  width: 129px;
 }
 
-.key-ctrl {
-  min-width: 45px;
+.key-ctrl, #key-MetaLeft, #key-AltLeft, #key-AltRight, #key-ControlRight {
+  width: 55px;
 }
 
 .key-space {
-  width: 280px;
+  width: 417px;
 }
 
 /* Target highlighting when key is standard or active */
