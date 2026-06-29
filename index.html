@@ -24,10 +24,17 @@
         <p class="tagline">DEFENDER FORCE ACADEMY</p>
       </div>
 
-      <div class="level-info-badge">
-        <div class="badge-label">CURRENT SECTOR</div>
-        <div id="activeStageName" class="badge-value">Sector 1: Stage 1.1</div>
-        <div id="activeStageKeys" class="badge-keys">Keys: F & J</div>
+      <div class="header-badges-group">
+        <div class="pilot-info-badge">
+          <div class="badge-label">ACTIVE PILOT</div>
+          <div id="activePilotName" class="badge-value">UNASSIGNED</div>
+        </div>
+
+        <div class="level-info-badge">
+          <div class="badge-label">CURRENT SECTOR</div>
+          <div id="activeStageName" class="badge-value">Sector 1: Stage 1.1</div>
+          <div id="activeStageKeys" class="badge-keys">Keys: F & J</div>
+        </div>
       </div>
 
       <div class="control-actions">
@@ -220,8 +227,25 @@
         <p>Unlock Sectors, master finger placements, and save the grid!</p>
       </div>
 
+      <div class="profile-management-section">
+        <div class="profile-select-container">
+          <label for="profileSelect">> SELECT ACTIVE PILOT</label>
+          <select id="profileSelect">
+            <!-- Dynamic profile options will be populated here -->
+          </select>
+        </div>
+        <div class="profile-create-container">
+          <label for="profileInput">> REGISTER NEW CODENAME</label>
+          <div class="profile-input-group">
+            <input type="text" id="profileInput" maxlength="15" placeholder="ENTER CODENAME...">
+            <button id="btnCreateProfile" class="btn-secondary-neon">REGISTER</button>
+          </div>
+          <div id="profileError" class="profile-error-message hidden"></div>
+        </div>
+      </div>
+
       <div class="modal-actions">
-        <button id="btnStartGame" class="btn-primary-neon">INITIALIZE LASER CANNON</button>
+        <button id="btnStartGame" class="btn-primary-neon" disabled>INITIALIZE LASER CANNON</button>
       </div>
     </div>
   </div>

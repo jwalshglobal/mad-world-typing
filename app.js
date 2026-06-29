@@ -423,6 +423,9 @@ const AudioSFX = new SoundFXManager();
 // --- 3. STATE MANAGER AND DATA STORAGE ---
 class GameManager {
   constructor() {
+    this.profiles = {};
+    this.currentProfile = null;
+
     this.activeStage = STAGES[0];
     this.unlockedStages = new Set(['1.1']);
     this.stageStars = {};
@@ -467,16 +470,58 @@ class GameManager {
 
   loadSaveState() {
     try {
-      const savedUnlocked = localStorage.getItem('mwt_unlocked');
-      const savedStars = localStorage.getItem('mwt_stars');
+      const savedProfiles = localStorage.getItem('mwt_profiles');
+      const savedCurrentProfile = localStorage.getItem('mwt_current_profile');
 
-      if (savedUnlocked) {
-        const list = JSON.parse(savedUnlocked);
-        list.forEach(id => this.unlockedStages.add(id));
+      if (savedProfiles) {
+        this.profiles = JSON.parse(savedProfiles);
+        this.currentProfile = savedCurrentProfile || null;
+      } else {
+        // Look for legacy single-player progress to migrate
+        const legacyUnlocked = localStorage.getItem('mwt_unlocked');
+        const legacyStars = localStorage.getItem('mwt_stars');
+
+        if (legacyUnlocked || legacyStars) {
+          const unlockedList = legacyUnlocked ? JSON.parse(legacyUnlocked) : ['1.1'];
+          const starsMap = legacyStars ? JSON.parse(legacyStars) : {};
+
+          this.profiles = {
+            "Cadet": {
+              name: "Cadet",
+              unlockedStages: unlockedList,
+              stageStars: starsMap,
+              bestRuns: {}
+            }
+          };
+          this.currentProfile = "Cadet";
+          
+          // Clean up legacy keys
+          localStorage.removeItem('mwt_unlocked');
+          localStorage.removeItem('mwt_stars');
+          this.saveState();
+        }
       }
 
-      if (savedStars) {
-        this.stageStars = JSON.parse(savedStars);
+      if (this.currentProfile && this.profiles[this.currentProfile]) {
+        const prof = this.profiles[this.currentProfile];
+        this.unlockedStages = new Set(prof.unlockedStages || ['1.1']);
+        this.stageStars = prof.stageStars || {};
+        this.selectFurthestUnlockedStage();
+      } else {
+        // If profile was somehow deleted or not found
+        const profileKeys = Object.keys(this.profiles);
+        if (profileKeys.length > 0) {
+          this.currentProfile = profileKeys[0];
+          const prof = this.profiles[this.currentProfile];
+          this.unlockedStages = new Set(prof.unlockedStages || ['1.1']);
+          this.stageStars = prof.stageStars || {};
+          this.selectFurthestUnlockedStage();
+        } else {
+          this.currentProfile = null;
+          this.unlockedStages = new Set(['1.1']);
+          this.stageStars = {};
+          this.activeStage = STAGES[0];
+        }
       }
     } catch (e) {
       console.warn("Could not load save state from local storage", e);
@@ -485,11 +530,91 @@ class GameManager {
 
   saveState() {
     try {
-      const unlockedList = Array.from(this.unlockedStages);
-      localStorage.setItem('mwt_unlocked', JSON.stringify(unlockedList));
-      localStorage.setItem('mwt_stars', JSON.stringify(this.stageStars));
+      if (this.currentProfile && this.profiles[this.currentProfile]) {
+        this.profiles[this.currentProfile].unlockedStages = Array.from(this.unlockedStages);
+        this.profiles[this.currentProfile].stageStars = this.stageStars;
+      }
+      localStorage.setItem('mwt_profiles', JSON.stringify(this.profiles));
+      localStorage.setItem('mwt_current_profile', this.currentProfile || '');
     } catch (e) {
       console.warn("Could not write save state to local storage", e);
+    }
+  }
+
+  createProfile(name) {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      return { success: false, error: 'Codename cannot be empty' };
+    }
+    if (trimmed.length < 2 || trimmed.length > 15) {
+      return { success: false, error: 'Codename must be 2 to 15 characters' };
+    }
+    const exists = Object.keys(this.profiles).some(k => k.toLowerCase() === trimmed.toLowerCase());
+    if (exists) {
+      return { success: false, error: 'Codename already registered' };
+    }
+
+    this.profiles[trimmed] = {
+      name: trimmed,
+      unlockedStages: ['1.1'],
+      stageStars: {},
+      bestRuns: {}
+    };
+
+    this.currentProfile = trimmed;
+    this.unlockedStages = new Set(['1.1']);
+    this.stageStars = {};
+    this.activeStage = STAGES[0];
+    this.saveState();
+    return { success: true };
+  }
+
+  switchProfile(name) {
+    if (!this.profiles[name]) return false;
+    this.currentProfile = name;
+    const prof = this.profiles[name];
+    this.unlockedStages = new Set(prof.unlockedStages || ['1.1']);
+    this.stageStars = prof.stageStars || {};
+    this.selectFurthestUnlockedStage();
+    this.saveState();
+    return true;
+  }
+
+  selectFurthestUnlockedStage() {
+    let furthest = STAGES[0];
+    for (let i = STAGES.length - 1; i >= 0; i--) {
+      if (this.unlockedStages.has(STAGES[i].id)) {
+        furthest = STAGES[i];
+        break;
+      }
+    }
+    this.activeStage = furthest;
+  }
+
+  recordBestRun(stageId, runStats) {
+    if (!this.currentProfile || !this.profiles[this.currentProfile]) return;
+    const prof = this.profiles[this.currentProfile];
+    if (!prof.bestRuns) prof.bestRuns = {};
+
+    const existing = prof.bestRuns[stageId];
+    if (!existing) {
+      prof.bestRuns[stageId] = runStats;
+      this.saveState();
+    } else {
+      let isBetter = false;
+      if (runStats.score > existing.score) {
+        isBetter = true;
+      } else if (runStats.score === existing.score) {
+        if (runStats.wpm > existing.wpm) {
+          isBetter = true;
+        } else if (runStats.wpm === existing.wpm && runStats.accuracy > existing.accuracy) {
+          isBetter = true;
+        }
+      }
+      if (isBetter) {
+        prof.bestRuns[stageId] = runStats;
+        this.saveState();
+      }
     }
   }
 
@@ -806,9 +931,47 @@ class GameEngine {
 
     this.audioToggleBtn = document.getElementById('btnToggleAudio');
 
+    // Profile DOM Elements
+    this.activePilotNameEl = document.getElementById('activePilotName');
+    this.profileSelectEl = document.getElementById('profileSelect');
+    this.profileInputEl = document.getElementById('profileInput');
+    this.btnCreateProfileEl = document.getElementById('btnCreateProfile');
+    this.profileErrorEl = document.getElementById('profileError');
+
+    this.updateProfileSelectDropdown();
     this.initEvents();
     this.renderSectorsSidebar();
     this.updateHUD();
+  }
+
+  updateProfileSelectDropdown() {
+    if (!this.profileSelectEl) return;
+    this.profileSelectEl.innerHTML = '';
+
+    const profilesList = Object.keys(Game.profiles);
+    
+    if (profilesList.length === 0) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.innerText = '-- REGISTER A CODENAME TO BEGIN --';
+      this.profileSelectEl.appendChild(opt);
+      document.getElementById('btnStartGame').disabled = true;
+    } else {
+      profilesList.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.innerText = name;
+        if (name === Game.currentProfile) {
+          opt.selected = true;
+        }
+        this.profileSelectEl.appendChild(opt);
+      });
+      document.getElementById('btnStartGame').disabled = !Game.currentProfile;
+    }
+
+    if (this.activePilotNameEl) {
+      this.activePilotNameEl.innerText = Game.currentProfile ? Game.currentProfile.toUpperCase() : 'UNASSIGNED';
+    }
   }
 
   initCanvas() {
@@ -824,6 +987,54 @@ class GameEngine {
   }
 
   initEvents() {
+    // Profile Management Events
+    if (this.profileSelectEl) {
+      this.profileSelectEl.addEventListener('change', (e) => {
+        const selected = e.target.value;
+        if (selected) {
+          Game.switchProfile(selected);
+          this.updateProfileSelectDropdown();
+          this.renderSectorsSidebar();
+          this.updateHUD();
+          this.clearNextKeyHighlights();
+          this.highlightStageKeys();
+        }
+      });
+    }
+
+    if (this.btnCreateProfileEl) {
+      const handleCreate = () => {
+        const nameInput = this.profileInputEl.value;
+        const res = Game.createProfile(nameInput);
+        if (res.success) {
+          this.profileInputEl.value = '';
+          if (this.profileErrorEl) {
+            this.profileErrorEl.classList.add('hidden');
+            this.profileErrorEl.innerText = '';
+          }
+          this.updateProfileSelectDropdown();
+          this.renderSectorsSidebar();
+          this.updateHUD();
+          this.clearNextKeyHighlights();
+          this.highlightStageKeys();
+        } else {
+          if (this.profileErrorEl) {
+            this.profileErrorEl.classList.remove('hidden');
+            this.profileErrorEl.innerText = `> ERROR: ${res.error.toUpperCase()}`;
+          }
+        }
+      };
+
+      this.btnCreateProfileEl.addEventListener('click', handleCreate);
+      
+      this.profileInputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleCreate();
+        }
+      });
+    }
+
     // Top bar actions
     this.audioToggleBtn.addEventListener('click', () => {
       const enabled = AudioSFX.toggle();
@@ -1190,6 +1401,13 @@ class GameEngine {
     // Record scores
     Game.recordStars(Game.activeStage.id, stars);
 
+    // Save best run statistics
+    Game.recordBestRun(Game.activeStage.id, {
+      wpm: wpm,
+      accuracy: accuracy,
+      score: Game.score
+    });
+
     // Inject parameters in clear modal
     document.getElementById('stageClearTitle').innerText = `${Game.activeStage.title} COMPLETED!`;
     document.getElementById('clearWpm').innerText = `${wpm} WPM (Target: ${Game.targetWpm})`;
@@ -1331,6 +1549,16 @@ class GameEngine {
             starsContainer.appendChild(miniStar);
           }
           stageRow.appendChild(starsContainer);
+
+          // Show best run stats if available
+          const prof = Game.profiles[Game.currentProfile];
+          const best = prof && prof.bestRuns ? prof.bestRuns[stage.id] : null;
+          if (best) {
+            const bestRunText = document.createElement('div');
+            bestRunText.className = 'stage-best-run';
+            bestRunText.innerText = `Best: ${best.wpm} WPM / ${best.accuracy}% / ${best.score.toLocaleString()} pts`;
+            meta.appendChild(bestRunText);
+          }
 
           // Click handler to swap stages
           stageRow.addEventListener('click', () => {
