@@ -554,15 +554,18 @@ class GameManager {
       return { success: false, error: 'Codename already registered' };
     }
 
+    const isDebugAdmin = (trimmed.toLowerCase() === 'zeus');
+    const unlockedList = isDebugAdmin ? STAGES.map(s => s.id) : ['1.1'];
+
     this.profiles[trimmed] = {
       name: trimmed,
-      unlockedStages: ['1.1'],
+      unlockedStages: unlockedList,
       stageStars: {},
       bestRuns: {}
     };
 
     this.currentProfile = trimmed;
-    this.unlockedStages = new Set(['1.1']);
+    this.unlockedStages = new Set(unlockedList);
     this.stageStars = {};
     this.activeStage = STAGES[0];
     this.saveState();
