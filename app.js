@@ -668,240 +668,7 @@ class GameManager {
 
 const Game = new GameManager();
 
-// --- 4. GAME RENDERING CANVAS & PARTICLES ENGINE ---
-class LaserBolt {
-  constructor(startX, startY, endX, endY) {
-    this.startX = startX;
-    this.startY = startY;
-    this.endX = endX;
-    this.endY = endY;
-    this.life = 1.0; // from 1.0 down to 0.0
-    this.decay = 10; // decays per frame or time
-  }
-
-  update(dt) {
-    this.life -= dt * 8; // fade out in about 125ms
-  }
-
-  draw(ctx) {
-    if (this.life <= 0) return;
-    ctx.save();
-    ctx.lineWidth = 3 * this.life;
-    ctx.strokeStyle = `rgba(0, 240, 255, ${this.life})`;
-    ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 12 * this.life;
-
-    ctx.beginPath();
-    ctx.moveTo(this.startX, this.startY);
-    ctx.lineTo(this.endX, this.endY);
-    ctx.stroke();
-
-    // Core white beam
-    ctx.lineWidth = 1 * this.life;
-    ctx.strokeStyle = `rgba(255, 255, 255, ${this.life})`;
-    ctx.stroke();
-
-    ctx.restore();
-  }
-}
-
-class Particle {
-  constructor(x, y, color) {
-    this.x = x;
-    this.y = y;
-    this.color = color;
-
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 1.5 + Math.random() * 3.5;
-
-    this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle) * speed;
-    this.life = 1.0;
-    this.decay = 0.02 + Math.random() * 0.04;
-    this.size = 1.5 + Math.random() * 2.5;
-  }
-
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.vy += 0.05; // light gravity pull
-    this.life -= this.decay;
-  }
-
-  draw(ctx) {
-    if (this.life <= 0) return;
-    ctx.save();
-    ctx.fillStyle = this.color;
-    ctx.globalAlpha = this.life;
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 6 * this.life;
-
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-class DroneEnemy {
-  constructor(id, text, x, y, speed, isBossMinion = false) {
-    this.id = id;
-    this.text = text;
-    this.x = x;
-    this.y = y;
-    this.speed = speed;
-    this.isBoss = isBossMinion;
-
-    this.typedIndex = 0; // number of characters matching
-    this.width = isBossMinion ? 160 : 75;
-    this.height = 36;
-    this.targetY = y;
-
-    // Visual indicators
-    this.pulseTime = Math.random() * 10;
-    this.color = isBossMinion ? '#ff007f' : '#00f0ff';
-    this.glowColor = isBossMinion ? 'rgba(255, 0, 127, 0.4)' : 'rgba(0, 240, 255, 0.3)';
-    this.shieldHp = 100;
-  }
-
-  update(dt) {
-    this.y += this.speed * dt * 60;
-    this.pulseTime += dt * 4;
-  }
-
-  draw(ctx, isTargeted) {
-    ctx.save();
-
-    // Pulse animation factor
-    const pulse = Math.sin(this.pulseTime) * 3;
-    const boxWidth = this.width + pulse;
-    const boxHeight = this.height;
-
-    // Draw glowing drone capsule outline
-    ctx.lineWidth = isTargeted ? 2.5 : 1.5;
-    ctx.strokeStyle = isTargeted ? '#ff007f' : this.color;
-    ctx.shadowColor = isTargeted ? '#ff007f' : this.color;
-    ctx.shadowBlur = isTargeted ? 14 : 8;
-
-    // Glassmorphic panel behind drone
-    ctx.fillStyle = 'rgba(10, 12, 34, 0.8)';
-
-    // Draw capsule path
-    ctx.beginPath();
-    const radius = 6;
-    const px = this.x - boxWidth / 2;
-    const py = this.y - boxHeight / 2;
-
-    ctx.moveTo(px + radius, py);
-    ctx.lineTo(px + boxWidth - radius, py);
-    ctx.quadraticCurveTo(px + boxWidth, py, px + boxWidth, py + radius);
-    ctx.lineTo(px + boxWidth, py + boxHeight - radius);
-    ctx.quadraticCurveTo(px + boxWidth, py + boxHeight, px + boxWidth - radius, py + boxHeight);
-    ctx.lineTo(px + radius, py + boxHeight);
-    ctx.quadraticCurveTo(px, py + boxHeight, px, py + boxHeight - radius);
-    ctx.lineTo(px, py + radius);
-    ctx.quadraticCurveTo(px, py, px + radius, py);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Draw drone wing antenna decals
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = this.color;
-    ctx.beginPath();
-    // left antenna wing
-    ctx.moveTo(px, py + 12);
-    ctx.lineTo(px - 10, py + 6);
-    ctx.lineTo(px - 10, py + 18);
-    // right antenna wing
-    ctx.moveTo(px + boxWidth, py + 12);
-    ctx.lineTo(px + boxWidth + 10, py + 6);
-    ctx.lineTo(px + boxWidth + 10, py + 18);
-    ctx.stroke();
-
-    // Draw horizontal progress bracket indicator for boss
-    if (this.isBoss) {
-      const healthPct = 1 - (this.typedIndex / this.text.length);
-      ctx.fillStyle = 'rgba(255, 0, 127, 0.2)';
-      ctx.fillRect(px + 4, py + boxHeight - 6, (boxWidth - 8), 3);
-      ctx.fillStyle = '#ff007f';
-      ctx.fillRect(px + 4, py + boxHeight - 6, (boxWidth - 8) * (1 - healthPct), 3);
-    }
-
-    // DRAW TEXT INSIDE DRONE
-    ctx.font = this.isBoss ? "800 22px 'Outfit', sans-serif" : "800 24px 'Outfit', sans-serif";
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    const textY = this.y;
-    const textWidth = ctx.measureText(this.text).width;
-
-    // Separate text into typed and untyped parts
-    const typedText = this.text.substring(0, this.typedIndex);
-    const untypedText = this.text.substring(this.typedIndex);
-
-    // Render a high-contrast black outline first to ensure high legibility against the starfield
-    ctx.save();
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 5;
-    ctx.lineJoin = 'round';
-    
-    if (this.typedIndex === 0) {
-      ctx.strokeText(this.text, this.x, textY);
-      ctx.restore();
-      
-      // None typed yet, standard clean rendering
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(this.text, this.x, textY);
-    } else {
-      const typedWidth = ctx.measureText(typedText).width;
-      const startX = this.x - textWidth / 2;
-
-      ctx.textAlign = 'left';
-      ctx.strokeText(typedText, startX, textY);
-      ctx.strokeText(untypedText, startX + typedWidth, textY);
-      ctx.restore();
-
-      // Split rendering offset calculation
-      const startXFill = this.x - textWidth / 2;
-
-      // Draw typed characters (neon green glow)
-      ctx.save();
-      ctx.fillStyle = '#39ff14';
-      ctx.shadowColor = '#39ff14';
-      ctx.shadowBlur = 6;
-      ctx.textAlign = 'left';
-      ctx.fillText(typedText, startXFill, textY);
-      ctx.restore();
-
-      // Draw untyped characters (plain white)
-      ctx.save();
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'left';
-      ctx.fillText(untypedText, startXFill + typedWidth, textY);
-      ctx.restore();
-    }
-
-    // Highlight cursor underline on the next target character
-    if (isTargeted && this.typedIndex < this.text.length) {
-      const nextChar = this.text.charAt(this.typedIndex);
-      const typedWidth = ctx.measureText(typedText).width;
-      const charWidth = ctx.measureText(nextChar).width;
-      const startX = this.x - textWidth / 2;
-
-      ctx.strokeStyle = '#fffb00';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(startX + typedWidth, this.y + 11);
-      ctx.lineTo(startX + typedWidth + charWidth, this.y + 11);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-}
-
-// --- 5. GAME ENGINE CORE CONTROLLER ---
+// --- 4. GAME ENGINE CORE CONTROLLER (ORCHESTRATOR) ---
 class GameEngine {
   constructor() {
     this.canvas = null;
@@ -922,6 +689,7 @@ class GameEngine {
     this.promptOverlayEl = document.getElementById('keyboardPromptOverlay');
     this.promptTextEl = document.getElementById('keyboardPromptText');
     this.sectorsListEl = document.getElementById('sectorsList');
+    this.dashboardPanelEl = document.querySelector('.dashboard-panel');
 
     // Modals
     this.modalWelcome = document.getElementById('modalWelcome');
@@ -937,6 +705,13 @@ class GameEngine {
     this.profileInputEl = document.getElementById('profileInput');
     this.btnCreateProfileEl = document.getElementById('btnCreateProfile');
     this.profileErrorEl = document.getElementById('profileError');
+
+    // Instantiate game engines
+    this.spaceEngine = new window.SpaceEngineInstance(this);
+    this.fishEngine = new window.FishEngineInstance(this);
+    this.activeEngine = null;
+
+    this.screenFlashTime = 0; // for typo flashes
 
     this.updateProfileSelectDropdown();
     this.initEvents();
@@ -981,9 +756,10 @@ class GameEngine {
     // Update layout limits
     Game.width = this.canvas.width;
     Game.height = this.canvas.height;
-    Game.shipX = Game.width / 2;
-    Game.shipY = Game.height - 35;
-    Game.shipTargetX = Game.width / 2;
+
+    if (this.activeEngine) {
+      this.activeEngine.init(this.canvas, this.ctx);
+    }
   }
 
   initEvents() {
@@ -1111,14 +887,31 @@ class GameEngine {
   readyStage() {
     Game.state = 'ready';
     Game.resetStats();
+    
+    // Choose active engine based on Sector
+    this.spaceEngine.cleanup();
+    this.fishEngine.cleanup();
+
+    if (Game.activeStage.sector === 2) {
+      this.activeEngine = this.fishEngine;
+      if (this.dashboardPanelEl) this.dashboardPanelEl.classList.add('show-oxygen');
+    } else {
+      this.activeEngine = this.spaceEngine;
+      if (this.dashboardPanelEl) this.dashboardPanelEl.classList.remove('show-oxygen');
+    }
+
     this.updateHUD();
     this.clearNextKeyHighlights();
-
-    // Draw keyboard helper highlighted keys for the stage
     this.highlightStageKeys();
 
     this.promptOverlayEl.classList.remove('hidden');
-    this.promptTextEl.innerText = "PRESS SPACEBAR TO INITIATE GRID DEFENSE";
+    
+    if (Game.activeStage.sector === 2) {
+      this.promptTextEl.innerText = "PRESS SPACEBAR TO INITIATE REEF INTRUSION DEFENSE";
+    } else {
+      this.promptTextEl.innerText = "PRESS SPACEBAR TO INITIATE GRID DEFENSE";
+    }
+    
     this.bossWarningEl.classList.add('hidden');
 
     this.initCanvas();
@@ -1138,6 +931,11 @@ class GameEngine {
       setTimeout(() => {
         this.bossWarningEl.classList.add('hidden');
       }, 3000);
+    }
+
+    // Start active engine
+    if (this.activeEngine) {
+      this.activeEngine.start();
     }
 
     this.lastTime = performance.now();
@@ -1172,40 +970,8 @@ class GameEngine {
   }
 
   updateNextTargetKeyHighlight() {
-    this.clearNextKeyHighlights();
-
-    // Re-apply stage background guides
-    this.highlightStageKeys();
-
-    if (Game.state !== 'playing') return;
-
-    let targetChar = null;
-
-    if (Game.activeTarget) {
-      // Find the next character in the current word target
-      targetChar = Game.activeTarget.text.charAt(Game.activeTarget.typedIndex);
-    } else {
-      // No active target, highlight the starting keys of all currently spawned drones
-      if (Game.enemies.length > 0) {
-        // Just highlight the closest drone's first letter
-        const closest = Game.enemies.reduce((acc, enemy) => {
-          return (enemy.y > acc.y) ? enemy : acc;
-        }, Game.enemies[0]);
-        targetChar = closest.text.charAt(0);
-      } else {
-        // If no enemies on screen, show first character of the key pool
-        targetChar = Game.activeStage.keyArray[0];
-      }
-    }
-
-    if (targetChar) {
-      const code = KEY_MAP[targetChar.toLowerCase()];
-      if (code) {
-        const targetEl = document.getElementById(code);
-        if (targetEl) {
-          targetEl.classList.add('next-key-target');
-        }
-      }
+    if (this.activeEngine) {
+      this.activeEngine.updateNextTargetKeyHighlight();
     }
   }
 
@@ -1238,105 +1004,9 @@ class GameEngine {
 
     Game.totalKeypresses++;
 
-    let matched = false;
-
-    if (Game.activeTarget) {
-      // Validate against the current targeted word drone
-      const expectedChar = Game.activeTarget.text.charAt(Game.activeTarget.typedIndex);
-      if (typedChar.toLowerCase() === expectedChar.toLowerCase()) {
-        matched = true;
-        Game.activeTarget.typedIndex++;
-        this.fireLaser(Game.activeTarget);
-
-        // Check if word completed
-        if (Game.activeTarget.typedIndex >= Game.activeTarget.text.length) {
-          this.destroyDrone(Game.activeTarget);
-          Game.activeTarget = null;
-        }
-      }
-    } else {
-      // Find the closest drone that starts with this character
-      let closestDrone = null;
-      let maxDistY = -999;
-
-      Game.enemies.forEach(enemy => {
-        if (enemy.typedIndex === 0 && enemy.text.charAt(0).toLowerCase() === typedChar.toLowerCase()) {
-          if (enemy.y > maxDistY) {
-            maxDistY = enemy.y;
-            closestDrone = enemy;
-          }
-        }
-      });
-
-      if (closestDrone) {
-        matched = true;
-        Game.activeTarget = closestDrone;
-        Game.activeTarget.typedIndex = 1;
-        this.fireLaser(Game.activeTarget);
-
-        // Single character drill completion check
-        if (Game.activeTarget.typedIndex >= Game.activeTarget.text.length) {
-          this.destroyDrone(Game.activeTarget);
-          Game.activeTarget = null;
-        }
-      }
-    }
-
-    if (matched) {
-      Game.correctCount++;
-      Game.streak++;
-
-      // Advance streak combo
-      if (Game.streak % 5 === 0 && Game.combo < 5) {
-        Game.combo++;
-        AudioSFX.playComboUp();
-      }
-
-      AudioSFX.playLaser();
-    } else {
-      // Mis-typed! Reset combo
-      Game.typos++;
-      Game.streak = 0;
-      Game.combo = 1;
-      Game.activeTarget = null; // drop focus target
-
-      AudioSFX.playBuzzer();
-      this.screenFlashTime = 0.15; // flash screen red for 150ms
-    }
-
-    this.updateHUD();
-    this.updateNextTargetKeyHighlight();
-  }
-
-  fireLaser(targetEnemy) {
-    // Interpolate spaceship location to slide towards the target center X
-    Game.shipTargetX = targetEnemy.x;
-
-    // Spawn laser bolt
-    const laser = new LaserBolt(Game.shipX, Game.shipY - 10, targetEnemy.x, targetEnemy.y);
-    Game.lasers.push(laser);
-  }
-
-  destroyDrone(enemy) {
-    AudioSFX.playExplosion();
-    Game.enemiesCleared++;
-
-    // Award points base * len * combo
-    const pointsGained = 10 * enemy.text.length * Game.combo;
-    Game.score += pointsGained;
-
-    // Spawn explosion particles
-    for (let i = 0; i < 20; i++) {
-      const p = new Particle(enemy.x, enemy.y, enemy.color);
-      Game.particles.push(p);
-    }
-
-    // Remove from active list
-    Game.enemies = Game.enemies.filter(e => e.id !== enemy.id);
-
-    // Evaluate stage win condition
-    if (Game.enemiesCleared >= Game.activeStage.enemiesToSpawn && Game.enemies.length === 0) {
-      this.winStage();
+    // Route alphanumeric typing to the active engine
+    if (this.activeEngine) {
+      this.activeEngine.onKeyPress(typedChar);
     }
   }
 
@@ -1352,30 +1022,6 @@ class GameEngine {
     if (Game.shield <= 0) {
       this.failStage();
     }
-  }
-
-  spawnEnemy() {
-    Game.enemiesSpawned++;
-    const id = Date.now() + Math.random().toString(36).substr(2, 5);
-
-    // Pick word
-    const words = Game.activeStage.drillWords;
-    const text = words[Math.floor(Math.random() * words.length)];
-
-    // Compute lateral placement
-    const textWidthGuess = text.length * 12;
-    const minX = textWidthGuess + 20;
-    const maxX = Game.width - textWidthGuess - 20;
-    const x = minX + Math.random() * (maxX - minX);
-
-    // Falling speed factors: base speed + minor random offsets + WPM scaling
-    const wpmFactor = Game.activeStage.targetWpm / 15;
-    const speed = (0.7 + Math.random() * 0.5) * wpmFactor;
-
-    const isBossMinion = Game.activeStage.isBoss;
-
-    const drone = new DroneEnemy(id, text, x, 0, speed, isBossMinion);
-    Game.enemies.push(drone);
   }
 
   winStage() {
@@ -1594,61 +1240,14 @@ class GameEngine {
   }
 
   updateGame(dt) {
-    // 1. Spawning
-    Game.spawnTimer += dt * 1000;
-
-    // Stop spawning if we reached the maximum count for this stage
-    const maxToSpawn = Game.activeStage.enemiesToSpawn;
-    if (Game.enemiesSpawned < maxToSpawn && Game.spawnTimer >= Game.spawnInterval) {
-      this.spawnEnemy();
-      Game.spawnTimer = 0;
-      this.updateNextTargetKeyHighlight(); // re-eval target highlights when items spawn
-    }
-
-    // 2. Spaceship horizontal drift interpolation (makes movement feel super premium)
-    Game.shipX += (Game.shipTargetX - Game.shipX) * 0.15;
-
-    // 3. Drone updates
-    Game.enemies.forEach(enemy => {
-      enemy.update(dt);
-
-      // Hit defensive shield line at bottom (Y = 350px)
-      if (enemy.y >= Game.shipY - 10) {
-        // Drone got past ship! Deduct shield health
-        const damage = enemy.isBoss ? 25 : 10;
-        this.damageShield(damage);
-
-        // Remove from list
-        Game.enemies = Game.enemies.filter(e => e.id !== enemy.id);
-
-        // Clear active target if that was the one that crashed
-        if (Game.activeTarget && Game.activeTarget.id === enemy.id) {
-          Game.activeTarget = null;
-        }
-
-        // Re-eval if all waves finished
-        if (Game.enemiesCleared + (Game.enemiesSpawned - Game.enemies.length - Game.enemiesCleared) >= maxToSpawn && Game.enemies.length === 0) {
-          this.winStage();
-        } else {
-          this.updateNextTargetKeyHighlight();
-        }
-      }
-    });
-
-    // 4. Laser updates
-    Game.lasers.forEach(laser => laser.update(dt));
-    Game.lasers = Game.lasers.filter(laser => laser.life > 0);
-
-    // 5. Particle updates
-    Game.particles.forEach(p => p.update());
-    Game.particles = Game.particles.filter(p => p.life > 0);
-
-    // 6. Typo flashes decay
     if (this.screenFlashTime > 0) {
       this.screenFlashTime = Math.max(0, this.screenFlashTime - dt);
     }
 
-    // 7. Periodically update WPM display
+    if (this.activeEngine) {
+      this.activeEngine.update(dt);
+    }
+
     this.updateHUD();
   }
 
@@ -1656,78 +1255,10 @@ class GameEngine {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, Game.width, Game.height);
 
-    // 1. Particle debris rendering
-    Game.particles.forEach(p => p.draw(ctx));
-
-    // 2. Drones rendering
-    Game.enemies.forEach(enemy => {
-      const isTargeted = (Game.activeTarget && Game.activeTarget.id === enemy.id);
-      enemy.draw(ctx, isTargeted);
-    });
-
-    // 3. Lasers rendering
-    Game.lasers.forEach(laser => laser.draw(ctx));
-
-    // 4. Draw Player Spaceship
-    ctx.save();
-    ctx.translate(Game.shipX, Game.shipY);
-
-    // Ship glow styling
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#00f0ff';
-    ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 10;
-
-    // Solid base layout
-    ctx.fillStyle = '#0a0d26';
-
-    ctx.beginPath();
-    ctx.moveTo(0, -18);  // Nose
-    ctx.lineTo(14, 12);  // Right thruster wings
-    ctx.lineTo(6, 6);    // Inner wing curves
-    ctx.lineTo(-6, 6);
-    ctx.lineTo(-14, 12); // Left thruster wings
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Small cockpit highlight
-    ctx.strokeStyle = '#ff007f';
-    ctx.shadowColor = '#ff007f';
-    ctx.shadowBlur = 4;
-    ctx.beginPath();
-    ctx.moveTo(0, -10);
-    ctx.lineTo(4, 2);
-    ctx.lineTo(-4, 2);
-    ctx.closePath();
-    ctx.stroke();
-
-    // Thruster engine fire visual scaling based on active combo
-    ctx.fillStyle = Game.combo >= 4 ? '#ff007f' : '#fffb00';
-    ctx.shadowColor = ctx.fillStyle;
-    ctx.shadowBlur = 8;
-    const fireHeight = 8 + (Game.combo * 2) + Math.random() * 4;
-    ctx.fillRect(-3, 8, 2, fireHeight);
-    ctx.fillRect(1, 8, 2, fireHeight);
-
-    ctx.restore();
-
-    // 5. Target Lock-on UI Decal
-    if (Game.activeTarget) {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(255, 0, 127, 0.4)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([4, 4]);
-
-      // Draw lock-on guide line from spaceship to active target drone
-      ctx.beginPath();
-      ctx.moveTo(Game.shipX, Game.shipY - 15);
-      ctx.lineTo(Game.activeTarget.x, Game.activeTarget.y + 15);
-      ctx.stroke();
-      ctx.restore();
+    if (this.activeEngine) {
+      this.activeEngine.draw();
     }
 
-    // 6. Typo red flash overlay border
     if (this.screenFlashTime > 0) {
       ctx.save();
       ctx.strokeStyle = `rgba(255, 0, 127, ${this.screenFlashTime * 3})`;
@@ -1737,25 +1268,13 @@ class GameEngine {
     }
   }
 
-  // Draw static setup screen before game starts
   drawSceneStatic() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, Game.width, Game.height);
 
-    // Draw spaceship in base center
-    ctx.save();
-    ctx.translate(Game.width / 2, Game.height - 35);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#00f0ff';
-    ctx.beginPath();
-    ctx.moveTo(0, -18);
-    ctx.lineTo(14, 12);
-    ctx.lineTo(6, 6);
-    ctx.lineTo(-6, 6);
-    ctx.lineTo(-14, 12);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.restore();
+    if (this.activeEngine) {
+      this.activeEngine.draw();
+    }
   }
 }
 

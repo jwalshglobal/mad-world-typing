@@ -294,6 +294,11 @@ body {
   grid-template-columns: 1.2fr 1.2fr 1.5fr 1.5fr 2.6fr;
   gap: 10px;
   margin-bottom: 12px;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.dashboard-panel.show-oxygen {
+  grid-template-columns: 1fr 1fr 1.2fr 1.2fr 2fr 2fr;
 }
 
 .metric-card {
@@ -403,6 +408,25 @@ body {
   text-shadow: 0 0 6px rgba(57, 255, 20, 0.3);
   min-width: 38px;
   text-align: right;
+}
+
+/* Oxygen Meter */
+.oxygen-card {
+  border-color: rgba(0, 240, 255, 0.25);
+}
+
+.oxygen-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0055ff 0%, var(--neon-cyan) 100%);
+  box-shadow: 0 0 10px var(--neon-cyan);
+  width: 100%;
+  transition: width 0.2s ease;
+  border-radius: 4px;
+}
+
+#oxygenBarContainer .shield-text {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 6px rgba(0, 240, 255, 0.3);
 }
 
 /* SPACE BATTLEFIELD SCREEN */
