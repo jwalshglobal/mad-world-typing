@@ -32,6 +32,13 @@ desktop.ini
 # Custom AI Agent rules (Optional: uncomment to keep preferences private/local-only)
 # .agents/
 
+# Antigravity IDE metadata
+.antigravity/
+.gemini/
+*.log
+.env
+
+
 
 # === Build / Log Outputs ===
 # Node/NPM logs (if you add build tools later)
