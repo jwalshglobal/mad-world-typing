@@ -29,6 +29,9 @@ desktop.ini
 *.sln
 *.swp
 
+# Custom AI Agent rules (Optional: uncomment to keep preferences private/local-only)
+# .agents/
+
 
 # === Build / Log Outputs ===
 # Node/NPM logs (if you add build tools later)
