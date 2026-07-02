@@ -15,7 +15,7 @@ const STAGES = [
     keyArray: ['f', 'j'],
     targetWpm: 12,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['f', 'j', 'ff', 'jj', 'fj', 'jf', 'ffj', 'jjf', 'fjf', 'jfj']
   },
   {
@@ -27,7 +27,7 @@ const STAGES = [
     keyArray: ['d', 'k'],
     targetWpm: 14,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['d', 'k', 'dk', 'kd', 'dd', 'kk', 'fd', 'jk', 'df', 'kj', 'fjd', 'jfk']
   },
   {
@@ -39,7 +39,7 @@ const STAGES = [
     keyArray: ['s', 'l'],
     targetWpm: 16,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['s', 'l', 'sl', 'ls', 'ss', 'll', 'ds', 'kl', 'sd', 'lk', 'fs', 'jl', 'sfd', 'lkj']
   },
   {
@@ -51,7 +51,7 @@ const STAGES = [
     keyArray: ['a', ';'],
     targetWpm: 18,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['a', ';', 'a;', ';a', 'aa', ';;', 'sa', 'l;', 'as', ';l', 'da', 'k;', 'fas', 'jl;']
   },
   {
@@ -63,7 +63,7 @@ const STAGES = [
     keyArray: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'],
     targetWpm: 20,
     isBoss: true,
-    enemiesToSpawn: 20,
+    enemiesToSpawn: 26,
     drillWords: ['as', 'sad', 'lad', 'lass', 'fad', 'salad', 'dada', 'flak', 'fall', 'alkali', 'ask', 'alaska', 'adds', 'jald', 'kafka', 'dallas', 'skald', 'flask', 'falls', 'slash']
   },
 
@@ -77,7 +77,7 @@ const STAGES = [
     keyArray: ['g', 'h'],
     targetWpm: 22,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['g', 'h', 'gh', 'hg', 'gg', 'hh', 'fg', 'jh', 'gf', 'hj', 'fgh', 'jhg', 'gas', 'had', 'lash', 'flag', 'half', 'glad']
   },
   {
@@ -89,7 +89,7 @@ const STAGES = [
     keyArray: ['e', 'i'],
     targetWpm: 24,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['e', 'i', 'ei', 'ie', 'ee', 'ii', 'de', 'ki', 'ed', 'ik', 'fed', 'ilk', 'life', 'side', 'idea', 'hike', 'seed', 'file', 'disk']
   },
   {
@@ -101,7 +101,7 @@ const STAGES = [
     keyArray: ['r', 'u'],
     targetWpm: 26,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['r', 'u', 'ru', 'ur', 'rr', 'uu', 'fr', 'ju', 'rf', 'uj', 'fur', 'red', 'run', 'ride', 'user', 'rude', 'rule', 'fire', 'sure', 'dust']
   },
   {
@@ -113,7 +113,7 @@ const STAGES = [
     keyArray: ['t', 'y'],
     targetWpm: 28,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['t', 'y', 'ty', 'yt', 'tt', 'yy', 'ft', 'jy', 'tf', 'yj', 'try', 'the', 'yet', 'toy', 'day', 'easy', 'rust', 'dust', 'city', 'duty', 'study']
   },
   {
@@ -125,7 +125,7 @@ const STAGES = [
     keyArray: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 'e', 'i', 'r', 'u', 't', 'y'],
     targetWpm: 30,
     isBoss: true,
-    enemiesToSpawn: 22,
+    enemiesToSpawn: 28,
     drillWords: ['the', 'they', 'red', 'here', 'huge', 'tree', 'light', 'right', 'fight', 'guide', 'tide', 'jelly', 'digit', 'fruit', 'heart', 'dirty', 'third', 'heavy', 'style', 'sight', 'earth', 'laser', 'shield', 'fighter', 'drifter']
   },
 
@@ -139,7 +139,7 @@ const STAGES = [
     keyArray: ['w', 'o'],
     targetWpm: 32,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['w', 'o', 'wo', 'ow', 'sw', 'lo', 'ws', 'ol', 'how', 'who', 'two', 'out', 'word', 'work', 'slow', 'wire', 'iron', 'door', 'grow', 'show']
   },
   {
@@ -151,7 +151,7 @@ const STAGES = [
     keyArray: ['q', 'p'],
     targetWpm: 33,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['q', 'p', 'qp', 'pq', 'aq', ';p', 'qa', 'p;', 'quit', 'quick', 'play', 'page', 'power', 'point', 'speed', 'queen', 'pilot', 'pixel']
   },
   {
@@ -163,7 +163,7 @@ const STAGES = [
     keyArray: ['c', 'm'],
     targetWpm: 34,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['c', 'm', 'cm', 'mc', 'dc', 'km', 'cd', 'mk', 'code', 'come', 'much', 'make', 'space', 'micro', 'cyber', 'mouse', 'music', 'crime', 'camp']
   },
   {
@@ -175,7 +175,7 @@ const STAGES = [
     keyArray: ['z', 'x', 'v', 'b', 'n', ',', '.'],
     targetWpm: 35,
     isBoss: false,
-    enemiesToSpawn: 25,
+    enemiesToSpawn: 31,
     drillWords: ['z', 'x', 'v', 'b', 'n', ',', '.', 'zone', 'next', 'view', 'base', 'node', 'zero', 'vector', 'galaxy', 'matrix', 'satellites', 'combos.', 'shields,']
   },
   {
@@ -187,7 +187,7 @@ const STAGES = [
     keyArray: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ',', '.'],
     targetWpm: 38,
     isBoss: true,
-    enemiesToSpawn: 18,
+    enemiesToSpawn: 24,
     drillWords: [
       'save the mainframe.',
       'intercept the cyber missiles.',
@@ -851,10 +851,12 @@ class GameEngine {
 
     // Victory Screen Actions
     document.getElementById('btnNextStage').addEventListener('click', () => {
-      const nextId = Game.unlockNextStage(Game.activeStage.id);
-      if (nextId) {
-        const next = STAGES.find(s => s.id === nextId);
-        if (next) Game.activeStage = next;
+      const currentIndex = STAGES.findIndex(s => s.id === Game.activeStage.id);
+      if (currentIndex !== -1 && currentIndex < STAGES.length - 1) {
+        const nextStage = STAGES[currentIndex + 1];
+        if (Game.unlockedStages.has(nextStage.id)) {
+          Game.activeStage = nextStage;
+        }
       }
       this.modalStageClear.classList.add('hidden');
       this.readyStage();
@@ -1027,43 +1029,35 @@ class GameEngine {
     }
   }
 
-  winStage() {
-    Game.state = 'clear';
+  showStageResult(passed, wpm, accuracy, stars, failReason) {
+    Game.state = passed ? 'clear' : 'fail';
     cancelAnimationFrame(Game.gameLoopId);
     this.clearNextKeyHighlights();
 
-    // Stats calculations
-    const durationMin = (Date.now() - Game.startTime) / 60000;
-    const wpm = Math.round((Game.correctCount / 5) / durationMin);
-    const accuracy = Game.totalKeypresses > 0
-      ? Math.round((Game.correctCount / Game.totalKeypresses) * 100)
-      : 100;
+    const modalBox = this.modalStageClear.querySelector('.modal-card');
+    if (passed) {
+      modalBox.classList.remove('modal-fail');
+      modalBox.classList.add('modal-success');
+      document.querySelector('#modalStageClear .title-glow').innerText = 'STAGE CLEARED';
+      document.getElementById('stageClearTitle').innerText = `${Game.activeStage.title} COMPLETED!`;
+    } else {
+      modalBox.classList.remove('modal-success');
+      modalBox.classList.add('modal-fail');
+      document.querySelector('#modalStageClear .title-glow').innerText = 'STAGE NOT PASSED';
 
-    // Stars formula
-    let stars = 1;
-    if (accuracy >= 96 && wpm >= Game.targetWpm) {
-      stars = 3;
-    } else if (accuracy >= 90 && wpm >= Game.targetWpm * 0.75) {
-      stars = 2;
+      let message = `${Game.activeStage.title} NOT PASSED`;
+      if (failReason === 'shield') {
+        message += ' - SHIELD DEPLETED!';
+      } else if (failReason === 'accuracy') {
+        message += ' - ACCURACY TOO LOW (< 85%)';
+      }
+      document.getElementById('stageClearTitle').innerText = message;
     }
 
-    // Record scores
-    Game.recordStars(Game.activeStage.id, stars);
-
-    // Save best run statistics
-    Game.recordBestRun(Game.activeStage.id, {
-      wpm: wpm,
-      accuracy: accuracy,
-      score: Game.score
-    });
-
-    // Inject parameters in clear modal
-    document.getElementById('stageClearTitle').innerText = `${Game.activeStage.title} COMPLETED!`;
     document.getElementById('clearWpm').innerText = `${wpm} WPM (Target: ${Game.targetWpm})`;
     document.getElementById('clearAccuracy').innerText = `${accuracy}%`;
     document.getElementById('clearScore').innerText = Game.score.toLocaleString();
 
-    // Show stars visually
     const star1 = document.getElementById('clearStar1');
     const star2 = document.getElementById('clearStar2');
     const star3 = document.getElementById('clearStar3');
@@ -1076,23 +1070,64 @@ class GameEngine {
     setTimeout(() => { if (stars >= 2) star2.className = 'star-icon star-active'; }, 400);
     setTimeout(() => { if (stars >= 3) star3.className = 'star-icon star-active'; }, 600);
 
+    const currentIndex = STAGES.findIndex(s => s.id === Game.activeStage.id);
+    const nextStage = (currentIndex !== -1 && currentIndex < STAGES.length - 1) ? STAGES[currentIndex + 1] : null;
+    const isNextUnlocked = nextStage && Game.unlockedStages.has(nextStage.id);
+
+    const btnNextStage = document.getElementById('btnNextStage');
+    if (isNextUnlocked) {
+      btnNextStage.classList.remove('hidden');
+    } else {
+      btnNextStage.classList.add('hidden');
+    }
+
+    const btnReplayStage = document.getElementById('btnReplayStage');
+    btnReplayStage.innerText = passed ? 'REPLAY' : 'RETRY';
+
     this.modalStageClear.classList.remove('hidden');
-    this.renderSectorsSidebar(); // refresh unlocked states and star markers
+    this.renderSectorsSidebar();
+  }
+
+  winStage() {
+    const durationMin = (Date.now() - Game.startTime) / 60000;
+    const wpm = Math.round((Game.correctCount / 5) / durationMin);
+    const accuracy = Game.totalKeypresses > 0
+      ? Math.round((Game.correctCount / Game.totalKeypresses) * 100)
+      : 100;
+
+    let stars = 0;
+    let passed = false;
+
+    if (accuracy >= 85) {
+      passed = true;
+      if (accuracy >= 95) {
+        stars = 3;
+      } else if (accuracy >= 90) {
+        stars = 2;
+      } else {
+        stars = 1;
+      }
+
+      Game.recordStars(Game.activeStage.id, stars);
+      Game.recordBestRun(Game.activeStage.id, {
+        wpm: wpm,
+        accuracy: accuracy,
+        score: Game.score
+      });
+      Game.unlockNextStage(Game.activeStage.id);
+    }
+
+    this.showStageResult(passed, wpm, accuracy, stars, 'accuracy');
   }
 
   failStage() {
-    Game.state = 'fail';
-    cancelAnimationFrame(Game.gameLoopId);
-    this.clearNextKeyHighlights();
-
     const durationMin = Game.startTime ? (Date.now() - Game.startTime) / 60000 : 1;
     const wpm = Game.startTime ? Math.round((Game.correctCount / 5) / durationMin) : 0;
+    const accuracy = Game.totalKeypresses > 0
+      ? Math.round((Game.correctCount / Game.totalKeypresses) * 100)
+      : 0;
 
-    document.getElementById('failStageName').innerText = Game.activeStage.title;
-    document.getElementById('failWpm').innerText = `${wpm} WPM`;
-    document.getElementById('failScore').innerText = Game.score.toLocaleString();
-
-    this.modalGameOver.classList.remove('hidden');
+    this.showStageResult(false, wpm, accuracy, 0, 'shield');
   }
 
   // Updates screen scoreboard widgets

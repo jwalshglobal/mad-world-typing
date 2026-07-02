@@ -196,8 +196,7 @@ class FishEngine {
           this.activeTarget = null;
         }
 
-        const spawnedAndCleared = Game.enemiesCleared + (Game.enemiesSpawned - this.bubbles.length - Game.enemiesCleared);
-        if (spawnedAndCleared >= maxToSpawn && this.bubbles.length === 0) {
+        if (Game.enemiesSpawned >= maxToSpawn && this.bubbles.length === 0) {
           this.core.winStage();
         } else {
           this.updateNextTargetKeyHighlight();
@@ -521,7 +520,7 @@ class FishEngine {
     this.bubbles = this.bubbles.filter(b => b.id !== bubble.id);
 
     const maxToSpawn = Game.activeStage.enemiesToSpawn;
-    if (Game.enemiesCleared >= maxToSpawn && this.bubbles.length === 0) {
+    if (Game.enemiesSpawned >= maxToSpawn && this.bubbles.length === 0) {
       this.core.winStage();
     } else {
       this.updateNextTargetKeyHighlight();
