@@ -302,8 +302,7 @@ class SpaceEngine {
           this.activeTarget = null;
         }
 
-        const spawnedAndCleared = Game.enemiesCleared + (Game.enemiesSpawned - this.enemies.length - Game.enemiesCleared);
-        if (spawnedAndCleared >= maxToSpawn && this.enemies.length === 0) {
+        if (Game.enemiesSpawned >= maxToSpawn && this.enemies.length === 0) {
           this.core.winStage();
         } else {
           this.updateNextTargetKeyHighlight();
@@ -495,7 +494,7 @@ class SpaceEngine {
     this.enemies = this.enemies.filter(e => e.id !== enemy.id);
 
     const maxToSpawn = Game.activeStage.enemiesToSpawn;
-    if (Game.enemiesCleared >= maxToSpawn && this.enemies.length === 0) {
+    if (Game.enemiesSpawned >= maxToSpawn && this.enemies.length === 0) {
       this.core.winStage();
     }
   }
